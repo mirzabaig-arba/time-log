@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arba Business solution</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface2: #f0f2f5;
+    --border: #e2e6ea;
+    --border-strong: #c8cdd4;
+    --text: #1a1d21;
+    --text2: #5a6270;
+    --text3: #8e97a3;
+    --accent: #2563eb;
+    --accent-bg: #eff4ff;
+    --accent-hover: #1d4ed8;
+    --success: #059669;
+    --success-bg: #ecfdf5;
+    --warn: #d97706;
+    --warn-bg: #fffbeb;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+  
+  /* LAYOUT */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .main { flex: 1; overflow-x: hidden; }
+  .content { padding: 28px 32px; max-width: 1100px; }
+
+  /* SIDEBAR */
+  .sidebar-logo { padding: 15px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: center; align-items: center; min-height: 60px; }
+  .logo-mark { width: 100%; display: flex; justify-content: center; align-items: center; }
+  .logo-mark img { max-width: 90%; max-height: 28px; object-fit: contain; }
+  .sidebar-nav { padding: 12px 10px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); padding: 12px 8px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text2); font-size: 13.5px; font-weight: 500; transition: all 0.12s; margin-bottom: 2px; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-bg); color: var(--accent); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer { padding: 14px 10px; border-top: 1px solid var(--border); }
+  .lang-toggle { display: flex; gap: 4px; }
+  .lang-btn { flex: 1; padding: 5px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; cursor: pointer; font-size: 12px; color: var(--text2); font-weight: 500; transition: all 0.12s; }
+  .lang-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* TOPBAR */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  .topbar-title { font-size: 18px; font-weight: 600; color: var(--text); }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  /* CARDS & STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .stat-label { font-size: 12px; color: var(--text3); font-weight: 500; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .stat-card.accent { border-color: var(--accent); background: var(--accent-bg); }
+  .stat-card.accent .stat-value { color: var(--accent); }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500; cursor: pointer; border: none; transition: all 0.12s; white-space: nowrap; }
+  .btn svg { width: 15px; height: 15px; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
+  .btn-danger:hover { background: #fee2e2; }
+  .btn-success { background: var(--success-bg); color: var(--success); border: 1px solid #a7f3d0; }
+  .btn-sm { padding: 5px 10px; font-size: 12.5px; }
+  .btn-icon { padding: 6px; background: transparent; border: none; color: var(--text3); cursor: pointer; border-radius: var(--radius-sm); transition: all 0.12s; display: inline-flex; align-items: center; }
+  .btn-icon:hover { background: var(--surface2); color: var(--text); }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .table-title { font-size: 15px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--surface2); font-size: 12px; font-weight: 600; color: var(--text2); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.4px; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .table-empty { text-align: center; padding: 40px; color: var(--text3); }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .badge-blue { background: var(--accent-bg); color: var(--accent); }
+  .badge-green { background: var(--success-bg); color: var(--success); }
+  .badge-amber { background: var(--warn-bg); color: var(--warn); }
+  .badge-gray { background: var(--surface2); color: var(--text2); }
+
+  /* MODAL OVERLAY */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow-md); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+  .modal-lg { max-width: 680px; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 16px; border-bottom: 1px solid var(--border); }
+  .modal-title { font-size: 16px; font-weight: 600; }
+  .modal-body { padding: 20px 22px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 14px 22px; border-top: 1px solid var(--border); }
+
+  /* FORMS */
+  .form-grid { display: grid; gap: 14px; }
+  .form-grid-2 { grid-template-columns: 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.span2 { grid-column: span 2; }
+  label { font-size: 12.5px; font-weight: 500; color: var(--text2); }
+  input[type="text"], input[type="number"], input[type="date"], input[type="time"], select, textarea {
+    padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 13.5px; background: var(--surface); color: var(--text); width: 100%; transition: border-color 0.12s; font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; background: var(--surface2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 22px; }
+  .tab { padding: 7px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2); transition: all 0.12s; }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+  /* CONNECTION STATUS */
+  .conn-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13px; }
+  .conn-bar.connected { background: var(--success-bg); border: 1px solid #a7f3d0; color: var(--success); }
+  .conn-bar.disconnected { background: var(--warn-bg); border: 1px solid #fde68a; color: var(--warn); }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  /* SECTION */
+  .section { margin-bottom: 28px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 15px; font-weight: 600; }
+
+  /* AVATAR */
+  .avatar { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+
+  /* WEEK PICKER */
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 12px 0; }
+  .day-cell { text-align: center; padding: 8px 4px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; }
+  .day-cell.selected { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+  .day-name { font-weight: 600; margin-bottom: 2px; }
+  .day-date { color: var(--text3); }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+  .toast { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); font-size: 13.5px; min-width: 260px; animation: slideIn 0.2s ease; }
+  .toast.success { border-color: #a7f3d0; background: var(--success-bg); color: var(--success); }
+  .toast.error { border-color: #fecaca; background: var(--danger-bg); color: var(--danger); }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* SYNC STATUS */
+  .sync-btn { display: flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2); transition: all 0.12s; }
+  .sync-btn:hover { background: var(--surface2); }
+  .sync-btn.syncing svg { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+    .form-grid-2 { grid-template-columns: 1fr; }
+    .form-group.span2 { grid-column: span 1; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* SETUP SCREEN */
+  .setup-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+  .setup-card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-md); padding: 40px; max-width: 480px; width: 100%; text-align: center; }
+  .setup-icon { width: 64px; height: 64px; background: var(--accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .setup-sub { color: var(--text2); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
+  .setup-steps { text-align: left; margin-bottom: 28px; }
+  .setup-step { display: flex; gap: 12px; margin-bottom: 14px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13.5px; color: var(--text2); line-height: 1.5; }
+  .step-text strong { color: var(--text); }
+
+  /* INLINE EDIT */
+  .editable { cursor: pointer; border-bottom: 1px dashed var(--border-strong); }
+  .editable:hover { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* FILTER ROW */
+  .filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-row input, .filter-row select { padding: 7px 12px; font-size: 13px; max-width: 180px; }
+
+  /* COLOR DOTS FOR CLIENTS */
+  .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
+
+  /* SUMMARY TABLE */
+  .summary-block { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 10px; }
+  .summary-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 4px 0; }
+  .summary-row.total { font-weight: 600; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 8px; }
+
+  /* HELP TOOLTIP */
+  .help { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--surface2); color: var(--text3); font-size: 11px; font-weight: 600; cursor: help; margin-left: 4px; }
+
+  .hidden { display: none !important; }
+
+  /* EXCEL SHEET PREVIEW */
+  .excel-preview { font-family: 'Consolas', monospace; font-size: 12px; background: #f9fafb; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow-x: auto; padding: 12px; }
+  .excel-preview table { border-collapse: collapse; }
+  .excel-preview th, .excel-preview td { border: 1px solid #e2e8f0; padding: 4px 10px; white-space: nowrap; }
+  .excel-preview th { background: #e8f0fe; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- SETUP MODAL (MS Graph) -->
+<div id="setupModal" class="modal-overlay open">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" data-sv="Inställningar för Microsoft 365" data-en="Microsoft 365 Setup">Microsoft 365 Setup</span>
+      <button class="btn-icon" onclick="closeSetup()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong data-sv="Azure App-registrering" data-en="Azure App Registration">Azure App Registration</strong><br>
+            <span data-sv="Gå till portal.azure.com → Azure Active Directory → App registrations → New registration. Välj 'Single-page application'. OBS: Azure kräver HTTPS eller http://localhost. Lägg till redirect URI:" data-en="Go to portal.azure.com → Azure Active Directory → App registrations → New registration. Select 'Single-page application'. Note: Azure requires HTTPS or http://localhost. Add redirect URI:">Go to portal.azure.com → Azure Active Directory → App registrations → New registration. Select 'Single-page application'. Note: Azure requires HTTPS or http://localhost. Add redirect URI:</span>
+            <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;display:block;margin-top:4px;word-break:break-all;" id="redirectUriDisplay"></code>
+            <p style="font-size:11px;color:var(--warn);margin-top:4px;" data-sv="Azure tillåter inte 'file://' länkar. Kör via en lokal server (t.ex. Live Server i VS Code) för att få http://localhost." data-en="Azure does not allow 'file://' links. Run via a local server (e.g., VS Code Live Server) to get http://localhost.">Azure does not allow 'file://' links. Run via a local server (e.g., VS Code Live Server) to get http://localhost.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong data-sv="API-behörigheter" data-en="API Permissions">API Permissions</strong><br>
+            <span data-sv="Lägg till: Files.ReadWrite.All, User.Read (delegated)" data-en="Add permissions: Files.ReadWrite.All, User.Read (delegated)">Add permissions: Files.ReadWrite.All, User.Read (delegated)</span>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong data-sv="Klistra in dina uppgifter nedan" data-en="Paste your credentials below">Paste your credentials below</strong></div>
+        </div>
+      </div>
+
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label data-sv="Klient-ID (Client ID)" data-en="Client ID">Client ID</label>
+          <input type="text" id="clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label data-sv="Tenant ID" data-en="Tenant ID">Tenant ID</label>
+          <input type="text" id="tenantId" placeholder="arba.onmicrosoft.com eller tenant GUID">
+        </div>
+        <div class="form-group span2">
+          <label data-sv="SharePoint/OneDrive Excel URL" data-en="SharePoint/OneDrive Excel File URL">SharePoint/OneDrive Excel File URL</label>
+          <input type="text" id="sharePointUrl" placeholder="https://arbaab-my.sharepoint.com/:x:/g/..." value="https://arbaab-my.sharepoint.com/:x:/g/personal/mirza_baig_arba_se/IQCwZGhnmatBQLnuSsVOzJGwAZLIKemZKK1fx8gurmKb_P0?e=uZUQXU">
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px 14px;background:var(--accent-bg);border-radius:var(--radius-sm);border:1px solid #bfdbfe;">
+        <p style="font-size:12.5px;color:var(--accent);line-height:1.6;">
+          <strong>💡 Offline-läge / Offline mode:</strong> <span data-sv="Du kan använda appen utan Microsoft-anslutning. Data sparas lokalt och du kan exportera till Excel manuellt." data-en="You can use the app without Microsoft connection. Data saves locally and you can export to Excel manually.">You can use the app without Microsoft connection. Data saves locally and you can export to Excel manually.</span>
+        </p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSetup()">
+        <span data-sv="Använd offline" data-en="Use Offline">Use Offline</span>
+      </button>
+      <button class="btn btn-primary" onclick="connectMS()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        <span data-sv="Anslut till Microsoft 365" data-en="Connect to Microsoft 365">Connect to Microsoft 365</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG HOURS MODAL -->
+<div id="logModal" class="modal-overlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="logModalTitle" data-sv="Logga arbetstimmar" data-en="Log Working Hours">Log Working Hours</span>
+      <button class="btn-icon" onclick="closeModal('logModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs" style="margin-bottom:18px;">
+        <div class="tab active" onclick="switchLogTab('single', this)" data-sv="Enstaka dag" data-en="Single Day">Single Day</div>
+        <div class="tab" onclick="switchLogTab('week', this)" data-sv="Hel vecka" data-en="Full Week">Full Week</div>
+      </div>
+
+      <!-- SINGLE DAY -->
+      <div id="logTabSingle">
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label data-sv="Anställd" data-en="Employee">Employee</label>
+            <select id="logEmployee"></select>
+          </div>
+          <div class="form-group">
+            <label data-sv="Kund/Företag" data-en="Client/Company">Client/Company</label>
+            <select id="logClient" onchange="populateProjects()"></select>
+          </div>
+          <div class="form-group">
+            <label data-sv="Projekt" data-en="Project">Project</label>
+            <select id="logProject">
+              <option value="">— <span>Välj projekt / Select project</span> —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-sv="Modul/Uppgift" data-en="Module/Task">Module/Task</label>
+            <input type="text" id="logModule" placeholder="t.ex. Frontend, API, Support...">
+          </div>
+          <div class="form-group">
+            <label data-sv="Datum" data-en="Date">Date</label>
+            <input type="date" id="logDate">
+          </div>
+          <div class="form-group">
+            <label data-sv="Antal timmar" data-en="Hours">Hours</label>
+            <input type="number" id="logHours" min="0.25" max="24" step="0.25" value="8">
+          </div>
+          <div class="form-group span2">
+            <label data-sv="Anteckning (valfri)" data-en="Note (optional)">Note (optional)</label>
+            <textarea id="logNote" placeholder="Vad arbetade du med? / What did you work on?"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL WEEK -->
+      <div id="logTabWeek" class="hidden">
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label data-sv="Anställd" data-en="Employee">Employee</label>
+            <select id="logEmployeeW"></select>
+          </div>
+          <div class="form-group">
+            <label data-sv="Kund/Företag" data-en="Client/Company">Client/Company</label>
+            <select id="logClientW" onchange="populateProjectsW()"></select>
+          </div>
+          <div class="form-group">
+            <label data-sv="Projekt" data-en="Project">Project</label>
+            <select id="logProjectW">
+              <option value="">— Välj / Select —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-sv="Timmar per dag" data-en="Hours per day">Hours per day</label>
+            <input type="number" id="logHoursW" min="0.25" max="24" step="0.25" value="8">
+          </div>
+          <div class="form-group span2">
+            <label data-sv="Välj veckostart (måndag)" data-en="Select week start (Monday)">Select week start (Monday)</label>
+            <input type="date" id="logWeekStart" onchange="renderWeekDays()">
+          </div>
+        </div>
+        <div class="week-grid" id="weekDaysGrid"></div>
+        <div class="form-group" style="margin-top:12px;">
+          <label data-sv="Välj dagar att logga" data-en="Select days to log">Select days to log</label>
+          <div id="weekDayCheckboxes" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('logModal')" data-sv="Avbryt" data-en="Cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLog()" data-sv="Spara timmar" data-en="Save Hours">Save Hours</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT LOG MODAL -->
+<div id="editLogModal" class="modal-overlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" data-sv="Redigera tidslogg" data-en="Edit Time Log">Edit Time Log</span>
+      <button class="btn-icon" onclick="closeModal('editLogModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editLogId">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label data-sv="Anställd" data-en="Employee">Employee</label>
+          <select id="editEmployee"></select>
+        </div>
+        <div class="form-group">
+          <label data-sv="Kund/Företag" data-en="Client/Company">Client/Company</label>
+          <select id="editClient"></select>
+        </div>
+        <div class="form-group">
+          <label data-sv="Projekt" data-en="Project">Project</label>
+          <input type="text" id="editProject">
+        </div>
+        <div class="form-group">
+          <label data-sv="Modul/Uppgift" data-en="Module/Task">Module/Task</label>
+          <input type="text" id="editModule">
+        </div>
+        <div class="form-group">
+          <label data-sv="Datum" data-en="Date">Date</label>
+          <input type="date" id="editDate">
+        </div>
+        <div class="form-group">
+          <label data-sv="Antal timmar" data-en="Hours">Hours</label>
+          <input type="number" id="editHours" min="0.25" step="0.25">
+        </div>
+        <div class="form-group span2">
+          <label data-sv="Anteckning" data-en="Note">Note</label>
+          <textarea id="editNote"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editLogModal')" data-sv="Avbryt" data-en="Cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="updateLog()" data-sv="Uppdatera" data-en="Update">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CLIENT MODAL -->
+<div id="clientModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="clientModalTitle" data-sv="Lägg till kund" data-en="Add Client">Add Client</span>
+      <button class="btn-icon" onclick="closeModal('clientModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editClientId">
+      <div class="form-grid">
+        <div class="form-group">
+          <label data-sv="Företagsnamn" data-en="Company Name">Company Name</label>
+          <input type="text" id="clientName" placeholder="Arba Business solution">
+        </div>
+        <div class="form-group">
+          <label data-sv="Org.nummer" data-en="Org. Number">Org. Number</label>
+          <input type="text" id="clientOrg" placeholder="556xxx-xxxx">
+        </div>
+        <div class="form-group">
+          <label data-sv="Timtaxa (SEK)" data-en="Hourly Rate (SEK)">Hourly Rate (SEK)</label>
+          <input type="number" id="clientRate" min="0" step="50" placeholder="950">
+        </div>
+        <div class="form-group">
+          <label data-sv="Kontaktperson" data-en="Contact Person">Contact Person</label>
+          <input type="text" id="clientContact">
+        </div>
+        <div class="form-group">
+          <label data-sv="Projekt (kommaseparerade)" data-en="Projects (comma-separated)">Projects (comma-separated)</label>
+          <input type="text" id="clientProjects" placeholder="Webb, App, Support">
+        </div>
+        <div class="form-group">
+          <label data-sv="Färgmarkering" data-en="Color">Color</label>
+          <input type="color" id="clientColor" value="#2563eb" style="height:36px;padding:2px;">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('clientModal')" data-sv="Avbryt" data-en="Cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()" data-sv="Spara kund" data-en="Save Client">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD EMPLOYEE MODAL -->
+<div id="employeeModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="empModalTitle" data-sv="Lägg till anställd" data-en="Add Employee">Add Employee</span>
+      <button class="btn-icon" onclick="closeModal('employeeModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editEmployeeId">
+      <div class="form-grid">
+        <div class="form-group">
+          <label data-sv="Namn" data-en="Full Name">Full Name</label>
+          <input type="text" id="empName" placeholder="Mirza Baig">
+        </div>
+        <div class="form-group">
+          <label data-sv="Roll/Titel" data-en="Role/Title">Role/Title</label>
+          <input type="text" id="empRole" placeholder="Konsult">
+        </div>
+        <div class="form-group">
+          <label data-sv="E-post" data-en="Email">Email</label>
+          <input type="text" id="empEmail" placeholder="mirza@arba.se">
+        </div>
+        <div class="form-group">
+          <label data-sv="Standardtimtaxa (SEK)" data-en="Default Hourly Rate (SEK)">Default Hourly Rate (SEK)</label>
+          <input type="number" id="empRate" min="0" step="50" placeholder="950">
+        </div>
+        <div class="form-group">
+          <label data-sv="Färgmarkering" data-en="Color">Color</label>
+          <input type="color" id="empColor" value="#059669" style="height:36px;padding:2px;">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('employeeModal')" data-sv="Avbryt" data-en="Cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()" data-sv="Spara" data-en="Save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="mainApp" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <img src="Arba-busines-solutions.png" alt="Arba Business solution Logo">
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section" data-sv="Navigering" data-en="Navigation">Navigation</div>
+      <div class="nav-item active" onclick="showPage('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-sv="Översikt" data-en="Dashboard">Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showPage('timelog', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+        <span data-sv="Tidlogg" data-en="Time Log">Time Log</span>
+      </div>
+      <div class="nav-item" onclick="showPage('clients', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        <span data-sv="Kunder" data-en="Clients">Clients</span>
+      </div>
+      <div class="nav-item" onclick="showPage('employees', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span data-sv="Anställda" data-en="Employees">Employees</span>
+      </div>
+      <div class="nav-section" data-sv="Export" data-en="Export">Export</div>
+      <div class="nav-item" onclick="exportExcel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span data-sv="Exportera Excel" data-en="Export Excel">Export Excel</span>
+      </div>
+      <div class="nav-item" onclick="syncToSharePoint()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="syncNavIcon"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        <span data-sv="Synka till SharePoint" data-en="Sync to SharePoint">Sync to SharePoint</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px;" data-sv="Språk / Language" data-en="Language / Språk">Language / Språk</div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')" id="langEn">EN</button>
+        <button class="lang-btn" onclick="setLang('sv')" id="langSv">SV</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:12px;" id="syncStatus">⚫ <span data-sv="Ej ansluten" data-en="Not connected">Not connected</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard">
+      <div class="topbar">
+        <div class="topbar-title" data-sv="Översikt" data-en="Dashboard">Dashboard</div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="openLogModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-sv="Logga timmar" data-en="Log Hours">Log Hours</span>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="connBar" class="conn-bar disconnected">
+          <div class="conn-dot"></div>
+          <span id="connBarText" data-sv="Offline-läge — data sparas lokalt. Exportera manuellt till Excel." data-en="Offline mode — data saves locally. Export to Excel manually.">Offline mode — data saves locally. Export to Excel manually.</span>
+        </div>
+
+        <div class="stats-grid" id="dashStats"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+          <div class="table-wrap">
+            <div class="table-header">
+              <span class="table-title" data-sv="Timmar per kund (denna månad)" data-en="Hours by Client (this month)">Hours by Client (this month)</span>
+            </div>
+            <div id="clientSummaryList" style="padding:4px 0;"></div>
+          </div>
+          <div class="table-wrap">
+            <div class="table-header">
+              <span class="table-title" data-sv="Timmar per anställd (denna månad)" data-en="Hours by Employee (this month)">Hours by Employee (this month)</span>
+            </div>
+            <div id="empSummaryList" style="padding:4px 0;"></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title" data-sv="Senaste tidsloggar" data-en="Recent Time Logs">Recent Time Logs</span>
+            <button class="btn btn-secondary btn-sm" onclick="showPage('timelog', document.querySelector('.nav-item:nth-child(2)'))">
+              <span data-sv="Visa alla" data-en="View all">View all</span>
+            </button>
+          </div>
+          <div id="recentLogsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIME LOG PAGE -->
+    <div id="page-timelog" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title" data-sv="Tidlogg" data-en="Time Log">Time Log</div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary" onclick="exportExcel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-sv="Exportera" data-en="Export">Export</span>
+          </button>
+          <button class="btn btn-primary" onclick="openLogModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-sv="Logga timmar" data-en="Log Hours">Log Hours</span>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="filter-row">
+          <input type="month" id="filterMonth" onchange="renderTimelog()">
+          <select id="filterEmployee" onchange="renderTimelog()">
+            <option value="" data-sv="Alla anställda" data-en="All employees">All employees</option>
+          </select>
+          <select id="filterClient" onchange="renderTimelog()">
+            <option value="" data-sv="Alla kunder" data-en="All clients">All clients</option>
+          </select>
+          <input type="text" id="filterSearch" placeholder="Sök / Search..." oninput="renderTimelog()" style="max-width:220px;">
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sv="Datum" data-en="Date">Date</th>
+                <th data-sv="Anställd" data-en="Employee">Employee</th>
+                <th data-sv="Kund" data-en="Client">Client</th>
+                <th data-sv="Projekt" data-en="Project">Project</th>
+                <th data-sv="Modul" data-en="Module">Module</th>
+                <th data-sv="Timmar" data-en="Hours">Hours</th>
+                <th data-sv="Belopp (SEK)" data-en="Amount (SEK)">Amount (SEK)</th>
+                <th data-sv="Anteckning" data-en="Note">Note</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="timelogTableBody">
+              <tr><td colspan="9" class="table-empty" data-sv="Inga loggar ännu." data-en="No logs yet.">No logs yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="timelogTotals" style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <!-- CLIENTS PAGE -->
+    <div id="page-clients" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title" data-sv="Kunder" data-en="Clients">Clients</div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="openClientModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-sv="Lägg till kund" data-en="Add Client">Add Client</span>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sv="Företag" data-en="Company">Company</th>
+                <th data-sv="Org.nr" data-en="Org. Nr">Org. Nr</th>
+                <th data-sv="Timtaxa" data-en="Rate/hr">Rate/hr</th>
+                <th data-sv="Projekt" data-en="Projects">Projects</th>
+                <th data-sv="Totalt loggat (h)" data-en="Total logged (h)">Total logged (h)</th>
+                <th data-sv="Intäkt (SEK)" data-en="Revenue (SEK)">Revenue (SEK)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="clientsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEES PAGE -->
+    <div id="page-employees" class="hidden">
+      <div class="topbar">
+        <div class="topbar-title" data-sv="Anställda" data-en="Employees">Employees</div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="openEmployeeModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-sv="Lägg till anställd" data-en="Add Employee">Add Employee</span>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sv="Namn" data-en="Name">Name</th>
+                <th data-sv="Roll" data-en="Role">Role</th>
+                <th data-sv="E-post" data-en="Email">Email</th>
+                <th data-sv="Timtaxa" data-en="Rate/hr">Rate/hr</th>
+                <th data-sv="Totalt (h, denna mån)" data-en="Total (h, this month)">Total (h, this month)</th>
+                <th data-sv="Totalt (h, alltid)" data-en="Total (h, all time)">Total (h, all time)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="employeesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let lang = 'en';
+let msToken = null;
+let fileId = null;
+let state = {
+  clients: [],
+  employees: [],
+  logs: []
+};
+let currentLogTab = 'single';
+let editingClientId = null;
+let editingEmployeeId = null;
+
+const CLIENT_COLORS = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0891b2','#65a30d'];
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('redirectUriDisplay').textContent = window.location.href.split('?')[0];
+  loadState();
+  // Set today as default date
+  document.getElementById('logDate').value = new Date().toISOString().slice(0,10);
+  // Set current month filter
+  document.getElementById('filterMonth').value = new Date().toISOString().slice(0,7);
+  // Set default week start to this Monday
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  document.getElementById('logWeekStart').value = monday.toISOString().slice(0,10);
+
+  // Seed sample data if empty
+  if (!state.clients.length && !state.employees.length) {
+    state.clients = [
+      { id: 'c1', name: 'Arba Business solution', org: '556123-4567', rate: 950, contact: 'Mirza Baig', projects: ['Webb', 'Konsulttjänst', 'Support'], color: '#2563eb' },
+      { id: 'c2', name: 'Exempelkund AB', org: '556987-6543', rate: 800, contact: '', projects: ['App', 'API'], color: '#059669' }
+    ];
+    state.employees = [
+      { id: 'e1', name: 'Mirza Baig', role: 'Konsult', email: 'mirza@arba.se', rate: 950, color: '#7c3aed' },
+      { id: 'e2', name: 'Kollega', role: 'Konsult', email: '', rate: 800, color: '#d97706' }
+    ];
+    saveState();
+  }
+  applyLang();
+});
+
+// ============================================================
+// LANG
+// ============================================================
+function setLang(l) {
+  lang = l;
+  document.getElementById('langEn').classList.toggle('active', l === 'en');
+  document.getElementById('langSv').classList.toggle('active', l === 'sv');
+  applyLang();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = lang === 'sv' ? (el.dataset.sv || el.placeholder) : (el.dataset.en || el.placeholder);
+    } else {
+      el.textContent = lang === 'sv' ? (el.dataset.sv || el.textContent) : (el.dataset.en || el.textContent);
+    }
+  });
+  renderCurrentPage();
+}
+
+function t(en, sv) { return lang === 'sv' ? sv : en; }
+
+// ============================================================
+// STATE PERSISTENCE
+// ============================================================
+function saveState() {
+  try { localStorage.setItem('arba_time_state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('arba_time_state');
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentPage = 'dashboard';
+function showPage(page, navEl) {
+  currentPage = page;
+  document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  renderCurrentPage();
+}
+function renderCurrentPage() {
+  if (currentPage === 'dashboard') renderDashboard();
+  else if (currentPage === 'timelog') { populateFilters(); renderTimelog(); }
+  else if (currentPage === 'clients') renderClients();
+  else if (currentPage === 'employees') renderEmployees();
+}
+
+// ============================================================
+// SETUP / CONNECT
+// ============================================================
+function closeSetup() {
+  document.getElementById('setupModal').classList.remove('open');
+  document.getElementById('mainApp').style.display = 'flex';
+  renderDashboard();
+  populateFilters();
+  renderTimelog();
+  renderClients();
+  renderEmployees();
+}
+
+async function connectMS() {
+  const clientId = document.getElementById('clientId').value.trim();
+  const tenantId = document.getElementById('tenantId').value.trim();
+  const spUrl = document.getElementById('sharePointUrl').value.trim();
+  if (!clientId || !tenantId) { showToast(t('Enter Client ID and Tenant ID first.','Fyll i Client ID och Tenant ID.'), 'error'); return; }
+  // Store for later use
+  localStorage.setItem('arba_ms_clientId', clientId);
+  localStorage.setItem('arba_ms_tenantId', tenantId);
+  localStorage.setItem('arba_ms_spUrl', spUrl);
+  // MSAL implicit flow
+  const scope = encodeURIComponent('Files.ReadWrite.All User.Read');
+  const redirectUri = encodeURIComponent(window.location.href.split('?')[0]);
+  const authUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scope}&response_mode=fragment`;
+  window.location.href = authUrl;
+}
+
+// Handle token from URL fragment after redirect
+function handleMSReturn() {
+  const hash = window.location.hash;
+  if (hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.slice(1));
+    msToken = params.get('access_token');
+    localStorage.setItem('arba_ms_token', msToken);
+    // Clean URL
+    history.replaceState(null, '', window.location.pathname);
+    updateConnStatus(true);
+    showToast(t('Connected to Microsoft 365!','Ansluten till Microsoft 365!'), 'success');
+  }
+  // Try stored token
+  const stored = localStorage.getItem('arba_ms_token');
+  if (stored && !msToken) { msToken = stored; updateConnStatus(true); }
+}
+handleMSReturn();
+
+function updateConnStatus(connected) {
+  const bar = document.getElementById('connBar');
+  const status = document.getElementById('syncStatus');
+  if (!bar) return;
+  if (connected) {
+    bar.className = 'conn-bar connected';
+    bar.querySelector('[id="connBarText"]') && (document.getElementById('connBarText').textContent = t('Connected to Microsoft 365 — changes sync to SharePoint.','Ansluten till Microsoft 365 — ändringar synkroniseras.'));
+    if (status) status.innerHTML = '🟢 ' + t('Connected','Ansluten');
+  } else {
+    bar.className = 'conn-bar disconnected';
+    if (status) status.innerHTML = '⚫ ' + t('Not connected','Ej ansluten');
+  }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  const monthLogs = state.logs.filter(l => {
+    const d = new Date(l.date);
+    return d.getMonth() === month && d.getFullYear() === year;
+  });
+  const totalH = monthLogs.reduce((s,l) => s + l.hours, 0);
+  const totalRevMonth = monthLogs.reduce((s,l) => {
+    const client = state.clients.find(c => c.id === l.clientId);
+    return s + (client ? client.rate * l.hours : 0);
+  }, 0);
+  const allTimeH = state.logs.reduce((s,l) => s + l.hours, 0);
+  const allTimeRev = state.logs.reduce((s,l) => {
+    const client = state.clients.find(c => c.id === l.clientId);
+    return s + (client ? client.rate * l.hours : 0);
+  }, 0);
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-card accent">
+      <div class="stat-label">${t('Hours This Month','Timmar denna månad')}</div>
+      <div class="stat-value">${totalH.toFixed(1)}</div>
+      <div class="stat-sub">${t('hours billed','fakturerade timmar')}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t('Revenue This Month','Intäkt denna månad')}</div>
+      <div class="stat-value">${Math.round(totalRevMonth).toLocaleString()}</div>
+      <div class="stat-sub">SEK</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t('All-Time Hours','Totalt alla timmar')}</div>
+      <div class="stat-value">${allTimeH.toFixed(1)}</div>
+      <div class="stat-sub">${t('across all clients','alla kunder')}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t('Total Revenue','Total intäkt')}</div>
+      <div class="stat-value">${Math.round(allTimeRev).toLocaleString()}</div>
+      <div class="stat-sub">SEK ${t('all time','totalt')}</div>
+    </div>
+  `;
+
+  // Client summary
+  const clientSummary = state.clients.map(c => {
+    const h = monthLogs.filter(l => l.clientId === c.id).reduce((s,l) => s + l.hours, 0);
+    const rev = h * c.rate;
+    return { c, h, rev };
+  }).filter(x => x.h > 0).sort((a,b) => b.h - a.h);
+
+  const maxH = clientSummary.length ? clientSummary[0].h : 1;
+  document.getElementById('clientSummaryList').innerHTML = clientSummary.length ? clientSummary.map(({c,h,rev}) => `
+    <div style="padding:10px 18px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:6px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${c.color};display:inline-block;"></span>${c.name}
+        </span>
+        <span style="font-size:13px;color:var(--text2);">${h.toFixed(1)}h &nbsp; <strong>${Math.round(rev).toLocaleString()} SEK</strong></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${(h/maxH*100).toFixed(1)}%;background:${c.color};"></div></div>
+    </div>
+  `).join('') : `<div class="table-empty">${t('No hours this month','Inga timmar denna månad')}</div>`;
+
+  // Employee summary
+  const empSummary = state.employees.map(e => {
+    const h = monthLogs.filter(l => l.employeeId === e.id).reduce((s,l) => s + l.hours, 0);
+    return { e, h };
+  }).filter(x => x.h > 0).sort((a,b) => b.h - a.h);
+  const maxEH = empSummary.length ? empSummary[0].h : 1;
+  document.getElementById('empSummaryList').innerHTML = empSummary.length ? empSummary.map(({e,h}) => `
+    <div style="padding:10px 18px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:8px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:${e.color}22;border:1px solid ${e.color}44;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${e.color};">${e.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</span>
+          ${e.name}
+        </span>
+        <span style="font-size:13px;color:var(--text2);">${h.toFixed(1)}h</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${(h/maxEH*100).toFixed(1)}%;background:${e.color};"></div></div>
+    </div>
+  `).join('') : `<div class="table-empty">${t('No hours this month','Inga timmar denna månad')}</div>`;
+
+  // Recent logs (last 8)
+  const recent = [...state.logs].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,8);
+  document.getElementById('recentLogsList').innerHTML = recent.length ? `
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr>
+        <th style="background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2);padding:9px 14px;text-align:left;">${t('Date','Datum')}</th>
+        <th style="background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2);padding:9px 14px;text-align:left;">${t('Employee','Anställd')}</th>
+        <th style="background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2);padding:9px 14px;text-align:left;">${t('Client','Kund')}</th>
+        <th style="background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2);padding:9px 14px;text-align:left;">${t('Project','Projekt')}</th>
+        <th style="background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2);padding:9px 14px;text-align:right;">${t('Hours','Timmar')}</th>
+      </tr></thead>
+      <tbody>${recent.map(l => {
+        const emp = state.employees.find(e => e.id === l.employeeId);
+        const cli = state.clients.find(c => c.id === l.clientId);
+        return `<tr>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;">${formatDate(l.date)}</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;">${emp ? emp.name : '—'}</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;">${cli ? `<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:${cli.color};"></span>${cli.name}</span>` : '—'}</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;">${l.project || '—'}</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;text-align:right;font-weight:600;">${l.hours.toFixed(1)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+  ` : `<div class="table-empty">${t('No logs yet. Click "Log Hours" to start.','Inga loggar ännu. Klicka "Logga timmar" för att börja.')}</div>`;
+}
+
+// ============================================================
+// LOG HOURS MODAL
+// ============================================================
+function openLogModal(logId) {
+  populateLogSelects();
+  if (!logId) {
+    document.getElementById('logDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('logHours').value = 8;
+    document.getElementById('logNote').value = '';
+    document.getElementById('logModule').value = '';
+  }
+  document.getElementById('logModal').classList.add('open');
+}
+
+function populateLogSelects() {
+  const empSel = document.getElementById('logEmployee');
+  const empSelW = document.getElementById('logEmployeeW');
+  [empSel, empSelW].forEach(sel => {
+    sel.innerHTML = state.employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+  });
+  const cliSel = document.getElementById('logClient');
+  const cliSelW = document.getElementById('logClientW');
+  [cliSel, cliSelW].forEach(sel => {
+    sel.innerHTML = state.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  });
+  populateProjects();
+  populateProjectsW();
+}
+
+function populateProjects() {
+  const cliId = document.getElementById('logClient').value;
+  const cli = state.clients.find(c => c.id === cliId);
+  const sel = document.getElementById('logProject');
+  sel.innerHTML = `<option value="">— ${t('Select project','Välj projekt')} —</option>` +
+    (cli && cli.projects ? cli.projects.map(p => `<option value="${p}">${p}</option>`).join('') : '');
+}
+function populateProjectsW() {
+  const cliId = document.getElementById('logClientW').value;
+  const cli = state.clients.find(c => c.id === cliId);
+  const sel = document.getElementById('logProjectW');
+  sel.innerHTML = `<option value="">— ${t('Select project','Välj projekt')} —</option>` +
+    (cli && cli.projects ? cli.projects.map(p => `<option value="${p}">${p}</option>`).join('') : '');
+}
+
+function switchLogTab(tab, el) {
+  currentLogTab = tab;
+  document.querySelectorAll('#logModal .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('logTabSingle').classList.toggle('hidden', tab !== 'single');
+  document.getElementById('logTabWeek').classList.toggle('hidden', tab !== 'week');
+  if (tab === 'week') renderWeekDays();
+}
+
+function renderWeekDays() {
+  const startStr = document.getElementById('logWeekStart').value;
+  if (!startStr) return;
+  const start = new Date(startStr);
+  const grid = document.getElementById('weekDaysGrid');
+  const checks = document.getElementById('weekDayCheckboxes');
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const dayNamesSv = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+  grid.innerHTML = '';
+  checks.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const isWeekday = i < 5;
+    const dateStr = d.toISOString().slice(0,10);
+    const name = lang === 'sv' ? dayNamesSv[i] : dayNames[i];
+    grid.innerHTML += `<div class="day-cell ${isWeekday ? 'selected' : ''}" id="daycell-${i}">
+      <div class="day-name">${name}</div>
+      <div class="day-date">${d.getDate()}/${d.getMonth()+1}</div>
+    </div>`;
+    checks.innerHTML += `<label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;">
+      <input type="checkbox" name="weekday" value="${dateStr}" ${isWeekday ? 'checked' : ''} onchange="toggleDayCell(${i}, this.checked)">
+      ${name} ${d.getDate()}/${d.getMonth()+1}
+    </label>`;
+  }
+}
+
+function toggleDayCell(idx, checked) {
+  const cell = document.getElementById('daycell-' + idx);
+  if (cell) cell.classList.toggle('selected', checked);
+}
+
+function saveLog() {
+  if (currentLogTab === 'single') {
+    const empId = document.getElementById('logEmployee').value;
+    const cliId = document.getElementById('logClient').value;
+    const date = document.getElementById('logDate').value;
+    const hours = parseFloat(document.getElementById('logHours').value);
+    const project = document.getElementById('logProject').value;
+    const module = document.getElementById('logModule').value;
+    const note = document.getElementById('logNote').value;
+    if (!empId || !cliId || !date || !hours) { showToast(t('Fill in all required fields.','Fyll i alla obligatoriska fält.'), 'error'); return; }
+    state.logs.push({ id: uid(), employeeId: empId, clientId: cliId, date, hours, project, module, note, createdAt: new Date().toISOString() });
+    showToast(t('Hours logged!','Timmar loggade!'), 'success');
+  } else {
+    const empId = document.getElementById('logEmployeeW').value;
+    const cliId = document.getElementById('logClientW').value;
+    const hours = parseFloat(document.getElementById('logHoursW').value);
+    const project = document.getElementById('logProjectW').value;
+    const checked = [...document.querySelectorAll('input[name="weekday"]:checked')];
+    if (!empId || !cliId || !hours || !checked.length) { showToast(t('Select at least one day.','Välj minst en dag.'), 'error'); return; }
+    checked.forEach(cb => {
+      state.logs.push({ id: uid(), employeeId: empId, clientId: cliId, date: cb.value, hours, project, module: '', note: '', createdAt: new Date().toISOString() });
+    });
+    showToast(t(`${checked.length} days logged!`,`${checked.length} dagar loggade!`), 'success');
+  }
+  saveState();
+  closeModal('logModal');
+  renderCurrentPage();
+  if (msToken) syncToSharePoint();
+}
+
+// ============================================================
+// EDIT LOG
+// ============================================================
+function openEditLog(logId) {
+  const log = state.logs.find(l => l.id === logId);
+  if (!log) return;
+  document.getElementById('editLogId').value = logId;
+  const empSel = document.getElementById('editEmployee');
+  empSel.innerHTML = state.employees.map(e => `<option value="${e.id}" ${e.id===log.employeeId?'selected':''}>${e.name}</option>`).join('');
+  const cliSel = document.getElementById('editClient');
+  cliSel.innerHTML = state.clients.map(c => `<option value="${c.id}" ${c.id===log.clientId?'selected':''}>${c.name}</option>`).join('');
+  document.getElementById('editProject').value = log.project || '';
+  document.getElementById('editModule').value = log.module || '';
+  document.getElementById('editDate').value = log.date;
+  document.getElementById('editHours').value = log.hours;
+  document.getElementById('editNote').value = log.note || '';
+  document.getElementById('editLogModal').classList.add('open');
+}
+
+function updateLog() {
+  const id = document.getElementById('editLogId').value;
+  const idx = state.logs.findIndex(l => l.id === id);
+  if (idx < 0) return;
+  state.logs[idx] = {
+    ...state.logs[idx],
+    employeeId: document.getElementById('editEmployee').value,
+    clientId: document.getElementById('editClient').value,
+    project: document.getElementById('editProject').value,
+    module: document.getElementById('editModule').value,
+    date: document.getElementById('editDate').value,
+    hours: parseFloat(document.getElementById('editHours').value),
+    note: document.getElementById('editNote').value
+  };
+  saveState();
+  closeModal('editLogModal');
+  renderCurrentPage();
+  showToast(t('Entry updated!','Posten uppdaterad!'), 'success');
+  if (msToken) syncToSharePoint();
+}
+
+function deleteLog(logId) {
+  if (!confirm(t('Delete this log entry?','Ta bort denna tidslogg?'))) return;
+  state.logs = state.logs.filter(l => l.id !== logId);
+  saveState();
+  renderCurrentPage();
+  showToast(t('Entry deleted.','Posten borttagen.'), 'success');
+  if (msToken) syncToSharePoint();
+}
+
+// ============================================================
+// TIME LOG PAGE
+// ============================================================
+function populateFilters() {
+  const empSel = document.getElementById('filterEmployee');
+  const savedEmp = empSel.value;
+  empSel.innerHTML = `<option value="">${t('All employees','Alla anställda')}</option>` +
+    state.employees.map(e => `<option value="${e.id}" ${e.id===savedEmp?'selected':''}>${e.name}</option>`).join('');
+  const cliSel = document.getElementById('filterClient');
+  const savedCli = cliSel.value;
+  cliSel.innerHTML = `<option value="">${t('All clients','Alla kunder')}</option>` +
+    state.clients.map(c => `<option value="${c.id}" ${c.id===savedCli?'selected':''}>${c.name}</option>`).join('');
+}
+
+function renderTimelog() {
+  const month = document.getElementById('filterMonth').value;
+  const empId = document.getElementById('filterEmployee').value;
+  const cliId = document.getElementById('filterClient').value;
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+
+  let logs = [...state.logs].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (month) logs = logs.filter(l => l.date.startsWith(month));
+  if (empId) logs = logs.filter(l => l.employeeId === empId);
+  if (cliId) logs = logs.filter(l => l.clientId === cliId);
+  if (search) logs = logs.filter(l => {
+    const emp = state.employees.find(e => e.id === l.employeeId);
+    const cli = state.clients.find(c => c.id === l.clientId);
+    return (emp&&emp.name.toLowerCase().includes(search)) ||
+           (cli&&cli.name.toLowerCase().includes(search)) ||
+           (l.project&&l.project.toLowerCase().includes(search)) ||
+           (l.module&&l.module.toLowerCase().includes(search)) ||
+           (l.note&&l.note.toLowerCase().includes(search));
+  });
+
+  const tbody = document.getElementById('timelogTableBody');
+  if (!logs.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="table-empty">${t('No entries match your filters.','Inga poster matchar dina filter.')}</td></tr>`;
+  } else {
+    tbody.innerHTML = logs.map(l => {
+      const emp = state.employees.find(e => e.id === l.employeeId);
+      const cli = state.clients.find(c => c.id === l.clientId);
+      const amount = cli ? Math.round(cli.rate * l.hours) : 0;
+      return `<tr>
+        <td>${formatDate(l.date)}</td>
+        <td>${emp ? `<span style="display:flex;align-items:center;gap:6px;"><span style="width:24px;height:24px;border-radius:50%;background:${emp.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${emp.color};">${initials(emp.name)}</span>${emp.name}</span>` : '—'}</td>
+        <td>${cli ? `<span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:${cli.color};"></span>${cli.name}</span>` : '—'}</td>
+        <td>${l.project ? `<span class="badge badge-blue">${l.project}</span>` : '—'}</td>
+        <td>${l.module || '—'}</td>
+        <td style="font-weight:600;">${l.hours.toFixed(1)}</td>
+        <td>${amount ? amount.toLocaleString() + ' kr' : '—'}</td>
+        <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2);font-size:12.5px;">${l.note || ''}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="btn-icon" onclick="openEditLog('${l.id}')" title="${t('Edit','Redigera')}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon" onclick="deleteLog('${l.id}')" title="${t('Delete','Ta bort')}" style="color:var(--danger);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Totals
+  const totalH = logs.reduce((s,l) => s + l.hours, 0);
+  const totalRev = logs.reduce((s,l) => {
+    const cli = state.clients.find(c => c.id === l.clientId);
+    return s + (cli ? cli.rate * l.hours : 0);
+  }, 0);
+  document.getElementById('timelogTotals').innerHTML = `
+    <div class="stat-card" style="flex:1;min-width:150px;">
+      <div class="stat-label">${t('Total Hours','Totalt timmar')}</div>
+      <div class="stat-value" style="font-size:20px;">${totalH.toFixed(1)}</div>
+    </div>
+    <div class="stat-card" style="flex:1;min-width:150px;">
+      <div class="stat-label">${t('Total Amount','Totalt belopp')}</div>
+      <div class="stat-value" style="font-size:20px;">${Math.round(totalRev).toLocaleString()} SEK</div>
+    </div>
+    <div class="stat-card" style="flex:1;min-width:150px;">
+      <div class="stat-label">${t('Entries','Poster')}</div>
+      <div class="stat-value" style="font-size:20px;">${logs.length}</div>
+    </div>
+  `;
+}
+
+// ============================================================
+// CLIENTS
+// ============================================================
+function openClientModal(clientId) {
+  editingClientId = clientId || null;
+  const isEdit = !!clientId;
+  document.getElementById('clientModalTitle').textContent = isEdit ? t('Edit Client','Redigera kund') : t('Add Client','Lägg till kund');
+  document.getElementById('editClientId').value = clientId || '';
+  if (isEdit) {
+    const c = state.clients.find(x => x.id === clientId);
+    if (c) {
+      document.getElementById('clientName').value = c.name;
+      document.getElementById('clientOrg').value = c.org || '';
+      document.getElementById('clientRate').value = c.rate;
+      document.getElementById('clientContact').value = c.contact || '';
+      document.getElementById('clientProjects').value = (c.projects||[]).join(', ');
+      document.getElementById('clientColor').value = c.color;
+    }
+  } else {
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientOrg').value = '';
+    document.getElementById('clientRate').value = '';
+    document.getElementById('clientContact').value = '';
+    document.getElementById('clientProjects').value = '';
+    document.getElementById('clientColor').value = CLIENT_COLORS[state.clients.length % CLIENT_COLORS.length];
+  }
+  document.getElementById('clientModal').classList.add('open');
+}
+
+function saveClient() {
+  const name = document.getElementById('clientName').value.trim();
+  if (!name) { showToast(t('Company name is required.','Företagsnamn krävs.'), 'error'); return; }
+  const data = {
+    name, org: document.getElementById('clientOrg').value.trim(),
+    rate: parseFloat(document.getElementById('clientRate').value) || 0,
+    contact: document.getElementById('clientContact').value.trim(),
+    projects: document.getElementById('clientProjects').value.split(',').map(s=>s.trim()).filter(Boolean),
+    color: document.getElementById('clientColor').value
+  };
+  if (editingClientId) {
+    const idx = state.clients.findIndex(c => c.id === editingClientId);
+    if (idx >= 0) state.clients[idx] = { ...state.clients[idx], ...data };
+  } else {
+    state.clients.push({ id: uid(), ...data });
+  }
+  saveState();
+  closeModal('clientModal');
+  renderClients();
+  showToast(t('Client saved!','Kund sparad!'), 'success');
+}
+
+function deleteClient(clientId) {
+  if (!confirm(t('Delete this client? Associated logs will remain.','Ta bort kunden? Tillhörande loggar behålls.'))) return;
+  state.clients = state.clients.filter(c => c.id !== clientId);
+  saveState();
+  renderClients();
+  showToast(t('Client removed.','Kund borttagen.'), 'success');
+}
+
+function renderClients() {
+  const tbody = document.getElementById('clientsTableBody');
+  if (!tbody) return;
+  if (!state.clients.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">${t('No clients yet.','Inga kunder ännu.')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = state.clients.map(c => {
+    const totalH = state.logs.filter(l => l.clientId === c.id).reduce((s,l) => s + l.hours, 0);
+    const totalRev = totalH * c.rate;
+    return `<tr>
+      <td><span style="display:flex;align-items:center;gap:8px;font-weight:500;">
+        <span style="width:10px;height:10px;border-radius:50%;background:${c.color};"></span>${c.name}
+      </span></td>
+      <td style="color:var(--text2);font-size:13px;">${c.org||'—'}</td>
+      <td><strong>${c.rate.toLocaleString()}</strong> kr/h</td>
+      <td>${(c.projects||[]).map(p=>`<span class="badge badge-gray" style="margin-right:3px;">${p}</span>`).join('') || '—'}</td>
+      <td style="font-weight:600;">${totalH.toFixed(1)}</td>
+      <td>${Math.round(totalRev).toLocaleString()} kr</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-secondary btn-sm" onclick="openClientModal('${c.id}')">${t('Edit','Redigera')}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">${t('Remove','Ta bort')}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// EMPLOYEES
+// ============================================================
+function openEmployeeModal(empId) {
+  editingEmployeeId = empId || null;
+  const isEdit = !!empId;
+  document.getElementById('empModalTitle').textContent = isEdit ? t('Edit Employee','Redigera anställd') : t('Add Employee','Lägg till anställd');
+  document.getElementById('editEmployeeId').value = empId || '';
+  if (isEdit) {
+    const e = state.employees.find(x => x.id === empId);
+    if (e) {
+      document.getElementById('empName').value = e.name;
+      document.getElementById('empRole').value = e.role || '';
+      document.getElementById('empEmail').value = e.email || '';
+      document.getElementById('empRate').value = e.rate || '';
+      document.getElementById('empColor').value = e.color;
+    }
+  } else {
+    ['empName','empRole','empEmail','empRate'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('empColor').value = CLIENT_COLORS[(state.employees.length + 2) % CLIENT_COLORS.length];
+  }
+  document.getElementById('employeeModal').classList.add('open');
+}
+
+function saveEmployee() {
+  const name = document.getElementById('empName').value.trim();
+  if (!name) { showToast(t('Name is required.','Namn krävs.'), 'error'); return; }
+  const data = {
+    name, role: document.getElementById('empRole').value.trim(),
+    email: document.getElementById('empEmail').value.trim(),
+    rate: parseFloat(document.getElementById('empRate').value) || 0,
+    color: document.getElementById('empColor').value
+  };
+  if (editingEmployeeId) {
+    const idx = state.employees.findIndex(e => e.id === editingEmployeeId);
+    if (idx >= 0) state.employees[idx] = { ...state.employees[idx], ...data };
+  } else {
+    state.employees.push({ id: uid(), ...data });
+  }
+  saveState();
+  closeModal('employeeModal');
+  renderEmployees();
+  showToast(t('Employee saved!','Anställd sparad!'), 'success');
+}
+
+function deleteEmployee(empId) {
+  if (!confirm(t('Remove this employee?','Ta bort denna anställda?'))) return;
+  state.employees = state.employees.filter(e => e.id !== empId);
+  saveState();
+  renderEmployees();
+  showToast(t('Employee removed.','Anställd borttagen.'), 'success');
+}
+
+function renderEmployees() {
+  const tbody = document.getElementById('employeesTableBody');
+  if (!tbody) return;
+  if (!state.employees.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">${t('No employees yet.','Inga anställda ännu.')}</td></tr>`;
+    return;
+  }
+  const now = new Date();
+  tbody.innerHTML = state.employees.map(e => {
+    const allH = state.logs.filter(l => l.employeeId === e.id).reduce((s,l) => s + l.hours, 0);
+    const monthH = state.logs.filter(l => {
+      const d = new Date(l.date);
+      return l.employeeId === e.id && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).reduce((s,l) => s + l.hours, 0);
+    return `<tr>
+      <td><span style="display:flex;align-items:center;gap:8px;font-weight:500;">
+        <span style="width:30px;height:30px;border-radius:50%;background:${e.color}22;border:1px solid ${e.color}44;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${e.color};">${initials(e.name)}</span>${e.name}
+      </span></td>
+      <td style="color:var(--text2);">${e.role||'—'}</td>
+      <td style="color:var(--text2);font-size:13px;">${e.email||'—'}</td>
+      <td><strong>${(e.rate||0).toLocaleString()}</strong> kr/h</td>
+      <td style="font-weight:600;">${monthH.toFixed(1)}</td>
+      <td style="font-weight:600;">${allH.toFixed(1)}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-secondary btn-sm" onclick="openEmployeeModal('${e.id}')">${t('Edit','Redigera')}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}')">${t('Remove','Ta bort')}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// EXCEL EXPORT (Swedish headers, Swedish format)
+// ============================================================
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Tidlogg (Time Log)
+  const logRows = [
+    ['Datum','Anställd','Kund','Org.nr','Projekt','Modul/Uppgift','Timmar','Timtaxa (SEK)','Belopp (SEK)','Anteckning','Registrerad']
+  ];
+  [...state.logs].sort((a,b) => new Date(a.date)-new Date(b.date)).forEach(l => {
+    const emp = state.employees.find(e => e.id === l.employeeId);
+    const cli = state.clients.find(c => c.id === l.clientId);
+    logRows.push([
+      l.date, emp?emp.name:'', cli?cli.name:'', cli?cli.org:'',
+      l.project||'', l.module||'', l.hours,
+      cli?cli.rate:0, cli?Math.round(cli.rate*l.hours):0,
+      l.note||'', l.createdAt?l.createdAt.slice(0,10):''
+    ]);
+  });
+  // Add totals row
+  logRows.push(['','','','','','SUMMA:', {f:`SUM(G2:G${logRows.length})`},'',{f:`SUM(I2:I${logRows.length})`},'','']);
+
+  const wsLog = XLSX.utils.aoa_to_sheet(logRows);
+  wsLog['!cols'] = [10,20,25,14,16,18,8,12,14,30,12].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsLog, 'Tidlogg');
+
+  // Sheet 2: Kunder
+  const cliRows = [['Företag','Org.nr','Timtaxa (SEK)','Kontakt','Projekt','Totala timmar','Total intäkt (SEK)']];
+  state.clients.forEach(c => {
+    const totalH = state.logs.filter(l=>l.clientId===c.id).reduce((s,l)=>s+l.hours,0);
+    cliRows.push([c.name, c.org||'', c.rate, c.contact||'', (c.projects||[]).join(', '), totalH, Math.round(totalH*c.rate)]);
+  });
+  const wsCli = XLSX.utils.aoa_to_sheet(cliRows);
+  wsCli['!cols'] = [25,14,14,20,25,14,18].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsCli, 'Kunder');
+
+  // Sheet 3: Anställda
+  const empRows = [['Namn','Roll','E-post','Timtaxa (SEK)','Timmar (denna mån)','Timmar (totalt)']];
+  const now = new Date();
+  state.employees.forEach(e => {
+    const allH = state.logs.filter(l=>l.employeeId===e.id).reduce((s,l)=>s+l.hours,0);
+    const monthH = state.logs.filter(l=>{
+      const d=new Date(l.date);
+      return l.employeeId===e.id && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    }).reduce((s,l)=>s+l.hours,0);
+    empRows.push([e.name, e.role||'', e.email||'', e.rate||0, monthH, allH]);
+  });
+  const wsEmp = XLSX.utils.aoa_to_sheet(empRows);
+  wsEmp['!cols'] = [22,16,24,14,18,14].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsEmp, 'Anställda');
+
+  // Sheet 4: Månadssammanfattning
+  const months = {};
+  state.logs.forEach(l => {
+    const ym = l.date.slice(0,7);
+    if (!months[ym]) months[ym] = { timmar: 0, belopp: 0 };
+    months[ym].timmar += l.hours;
+    const cli = state.clients.find(c=>c.id===l.clientId);
+    months[ym].belopp += cli ? cli.rate * l.hours : 0;
+  });
+  const sumRows = [['Månad','Totala timmar','Total intäkt (SEK)']];
+  Object.keys(months).sort().forEach(m => sumRows.push([m, months[m].timmar, Math.round(months[m].belopp)]));
+  const wsSum = XLSX.utils.aoa_to_sheet(sumRows);
+  wsSum['!cols'] = [12,16,20].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsSum, 'Månadssammanfattning');
+
+  const d = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `Arba_Business_solution_Tidrapport_${d}.xlsx`);
+  showToast(t('Excel exported!','Excel exporterad!'), 'success');
+}
+
+// ============================================================
+// SHAREPOINT SYNC via Microsoft Graph API
+// ============================================================
+async function syncToSharePoint() {
+  if (!msToken) { showToast(t('Not connected to Microsoft 365.','Ej ansluten till Microsoft 365.'), 'error'); return; }
+  const syncIcon = document.getElementById('syncNavIcon');
+  if (syncIcon) syncIcon.parentElement.classList.add('syncing');
+  showToast(t('Syncing to SharePoint...','Synkroniserar...'), 'success');
+
+  try {
+    // Build xlsx as ArrayBuffer
+    const wb = buildWorkbook();
+    const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    // Get file info from stored URL
+    const spUrl = localStorage.getItem('arba_ms_spUrl') || '';
+    // Extract drive item via Graph - use /me/drive/root by path or the sharing link
+    // We'll use the sharing URL to get the item
+    const encoded = btoa(spUrl).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+    const shareId = 'u!' + encoded;
+    
+    // First try to get the file via sharing link
+    const infoRes = await fetch(`https://graph.microsoft.com/v1.0/shares/${shareId}/driveItem`, {
+      headers: { 'Authorization': 'Bearer ' + msToken }
+    });
+    
+    if (!infoRes.ok) throw new Error('Could not access file: ' + infoRes.status);
+    const info = await infoRes.json();
+    const uploadUrl = `https://graph.microsoft.com/v1.0/drives/${info.parentReference.driveId}/items/${info.id}/content`;
+    
+    const uploadRes = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer ' + msToken,
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      },
+      body: blob
+    });
+    
+    if (uploadRes.ok) {
+      showToast(t('Synced to SharePoint!','Synkroniserat till SharePoint!'), 'success');
+      const d = new Date().toLocaleTimeString();
+      const status = document.getElementById('syncStatus');
+      if (status) status.innerHTML = `🟢 ${t('Synced','Synkat')} ${d}`;
+    } else {
+      throw new Error('Upload failed: ' + uploadRes.status);
+    }
+  } catch (err) {
+    console.error('Sync error:', err);
+    showToast(t('Sync failed. Check connection or re-authenticate.','Synkronisering misslyckades. Kontrollera anslutningen.'), 'error');
+  } finally {
+    if (syncIcon) syncIcon.parentElement.classList.remove('syncing');
+  }
+}
+
+function buildWorkbook() {
+  const wb = XLSX.utils.book_new();
+  const logRows = [['Datum','Anställd','Kund','Org.nr','Projekt','Modul/Uppgift','Timmar','Timtaxa (SEK)','Belopp (SEK)','Anteckning']];
+  [...state.logs].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(l => {
+    const emp = state.employees.find(e=>e.id===l.employeeId);
+    const cli = state.clients.find(c=>c.id===l.clientId);
+    logRows.push([l.date,emp?emp.name:'',cli?cli.name:'',cli?cli.org:'',l.project||'',l.module||'',l.hours,cli?cli.rate:0,cli?Math.round(cli.rate*l.hours):0,l.note||'']);
+  });
+  const wsLog = XLSX.utils.aoa_to_sheet(logRows);
+  wsLog['!cols'] = [10,20,25,14,16,18,8,12,14,30].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsLog, 'Tidlogg');
+  const cliRows = [['Företag','Org.nr','Timtaxa (SEK)','Kontakt','Projekt','Totala timmar','Total intäkt (SEK)']];
+  state.clients.forEach(c => {
+    const h = state.logs.filter(l=>l.clientId===c.id).reduce((s,l)=>s+l.hours,0);
+    cliRows.push([c.name,c.org||'',c.rate,c.contact||'',(c.projects||[]).join(', '),h,Math.round(h*c.rate)]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cliRows), 'Kunder');
+  const empRows = [['Namn','Roll','E-post','Timtaxa (SEK)','Totala timmar']];
+  state.employees.forEach(e => {
+    const h = state.logs.filter(l=>l.employeeId===e.id).reduce((s,l)=>s+l.hours,0);
+    empRows.push([e.name,e.role||'',e.email||'',e.rate||0,h]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(empRows), 'Anställda');
+  return wb;
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function uid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+function initials(name) { return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function formatDate(s) {
+  if (!s) return '';
+  const d = new Date(s + 'T12:00:00');
+  return d.toLocaleDateString(lang === 'sv' ? 'sv-SE' : 'en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+</script>
+</body>
+</html>
+t', month:'short', year:'numeric' });
+}
+</script>
+</body>
+</html>
