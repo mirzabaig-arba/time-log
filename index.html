@@ -866,10 +866,15 @@ function handleMSReturn() {
     history.replaceState(null, '', window.location.pathname);
     updateConnStatus(true);
     showToast(t('Connected to Microsoft 365!','Ansluten till Microsoft 365!'), 'success');
+    closeSetup();
   }
   // Try stored token
   const stored = localStorage.getItem('arba_ms_token');
-  if (stored && !msToken) { msToken = stored; updateConnStatus(true); }
+  if (stored && !msToken) { 
+    msToken = stored; 
+    updateConnStatus(true);
+    closeSetup();
+  }
 }
 handleMSReturn();
 
@@ -1609,11 +1614,6 @@ function formatDate(s) {
   if (!s) return '';
   const d = new Date(s + 'T12:00:00');
   return d.toLocaleDateString(lang === 'sv' ? 'sv-SE' : 'en-GB', { day:'2-digit', month:'short', year:'numeric' });
-}
-</script>
-</body>
-</html>
-t', month:'short', year:'numeric' });
 }
 </script>
 </body>
